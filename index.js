@@ -35,9 +35,7 @@ const token = process.env.TOKEN;
 
 if (token) {
     console.log("🔑 Token found, attempting to login...");
-    bot.login(token).catch(err => {
-        console.error("❌ Login Error:", err.message);
-    });
+    bot.login(token)
 } else {
     console.log("⚠️ Error: TOKEN is missing in Environment Variables!");
 }
