@@ -22,7 +22,7 @@ bot.once('ready', (readyClient) => {
         bot.application.commands.set([
             {
                 name: 'hi',
-                description: 'Bot respond with Hoa'
+                description: 'Bot reply with Hoa'
             }
         ]);
         console.log("Loading commands successfull!")
@@ -31,7 +31,16 @@ bot.once('ready', (readyClient) => {
         console.log("And error occured! Error:", error)
     }
 });
+const token = process.env.TOKEN;
 
+if (token) {
+    console.log("🔑 Token found, attempting to login...");
+    bot.login(token).catch(err => {
+        console.error("❌ Login Error:", err.message);
+    });
+} else {
+    console.log("⚠️ Error: TOKEN is missing in Environment Variables!");
+}
 
 
 
@@ -100,16 +109,12 @@ bot.on('interactionCreate', async (interaction) => {
 });
 
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
-const token = process.env.TOKEN
+
 
 
 app.get('/', (req, res) => res.send('Online!'));
 
 
-bot.login(process.env.TOKEN).catch(err => {
-    console.log("Asol Error Eta:");
-    console.error(err);
-});
 
 
 
