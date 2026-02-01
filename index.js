@@ -4,8 +4,11 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
 const app = express();
 
-app.get('/', (req, res) => res.send('Online!'));
-app.listen(8000);
+
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+    console.log(`Express server is running on port ${PORT}`);
+});
 const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -101,7 +104,7 @@ const token = process.env.TOKEN
 
 
 app.get('/', (req, res) => res.send('Online!'));
-app.listen(8000);
+
 
 bot.login(process.env.TOKEN).catch(err => {
     console.log("Asol Error Eta:");
