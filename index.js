@@ -1,18 +1,17 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require('discord.js');
 require('dotenv').config();
 const express = require('express');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// 1. Web Server Setup
+// ১. ডিকশনারি (বট রিস্টার্ট হওয়া পর্যন্ত ডাটা সেভ থাকবে)
+const wChannel = {};
+
+// Express Server Setup
 app.get('/', (req, res) => res.send('Bot is strictly online!'));
+app.listen(PORT, () => console.log(`Express server is running on port ${PORT}`));
 
-app.listen(PORT, () => {
-    console.log(`Express server is running on port ${PORT}`);
-});
-
-// 2. Bot Client Setup (Added GuildMembers and Presences for your commands)
 const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -23,27 +22,75 @@ const bot = new Client({
     ]
 });
 
-// 3. Ready Event
+// ২. রেডি ইভেন্ট এবং স্ল্যাশ কমান্ড কনফিগারেশন
 bot.once('ready', async () => {
     console.log(`Bot is online! Logged in as ${bot.user.tag}`);
     try {
         await bot.application.commands.set([
             {
                 name: 'hi',
-                description: 'Bot reply with Hoa'
+                description: 'বট বলবে Hoa'
+            },
+            {
+                name: 'setwelcome',
+                description: 'ওয়েলকাম মেসেজের জন্য চ্যানেল সেট করো',
+                options: [
+                    {
+                        name: 'target',
+                        description: 'চ্যানেলটি সিলেক্ট করো',
+                        type: 7, // CHANNEL type
+                        channel_types: [0], // শুধু TEXT channel
+                        required: true
+                    }
+                ]
             }
         ]);
         console.log("Slash commands loaded successfully!");
     } catch (error) {
-        console.log("Error loading commands:", error);
+        console.error("Error loading commands:", error);
     }
 });
 
-// 4. Message Commands
+// ৩. স্ল্যাশ কমান্ড হ্যান্ডলিং (Interaction)
+bot.on('interactionCreate', async (interaction) => {
+    if (!interaction.isChatInputCommand()) return;
+
+    // /hi কমান্ড
+    if (interaction.commandName === 'hi') {
+        await interaction.reply('Hoa');
+    }
+
+    // /setwelcome কমান্ড
+    if (interaction.commandName === 'setwelcome') {
+        const sChannel = interaction.options.getChannel('target');
+        const serverid = interaction.guild.id;
+
+        // ডিকশনারি আপডেট: { 'ServerID': 'ChannelID' }
+        wChannel[serverid] = sChannel.id;
+
+        await interaction.reply({ 
+            content: `সাফল্যের সাথে ওয়েলকাম চ্যানেল ${sChannel} এ সেট করা হয়েছে!`, 
+            ephemeral: true 
+        });
+    }
+});
+
+// ৪. অটো ওয়েলকাম সিস্টেম
+bot.on('guildMemberAdd', async (member) => {
+    const channelId = wChannel[member.guild.id]; 
+    if (!channelId) return; 
+
+    const welcomeChannel = member.guild.channels.cache.get(channelId);
+    if (welcomeChannel) {
+        welcomeChannel.send(`স্বাগতম ${member}! আমাদের সার্ভারে আসার জন্য ধন্যবাদ। 🎉`);
+    }
+});
+
+// ৫. মেসেজ কমান্ডস (!userinfo, !clear, Reactions)
 bot.on('messageCreate', async (msg) => {
     if (msg.author.bot) return;
 
-    // Hi Command
+    // Hi/Hello
     if (msg.content.toLowerCase().includes("hi")) {
         msg.reply("Hello!");
         msg.react("👋🏼");
@@ -51,72 +98,38 @@ bot.on('messageCreate', async (msg) => {
 
     // Reaction Commands
     if (msg.content.toLowerCase().includes("w/l")) {
-        msg.react("👍🏼");
-        msg.react("👎🏼");
-    }
-    if (msg.content.toLowerCase().includes("w/f/l")) {
-        msg.react("👍🏼");
-        msg.react("⚖️");
-        msg.react("👎🏼");
+        msg.react("👍🏼"); msg.react("👎🏼");
     }
 
-    // Clear Command
+    // !clear কমান্ড
     if (msg.content.startsWith("!clear")) {
         const args = msg.content.split(' ');
         const amount = parseInt(args[1]);
-        
         if (!msg.member.permissions.has('ManageMessages')) return;
         if (isNaN(amount) || amount <= 0) return msg.reply("Please provide a valid number.");
 
         await msg.channel.bulkDelete(Math.min(amount + 1, 100));
-        
-        const clearEmbed = new EmbedBuilder()
-            .setColor(0x00FF00)
-            .setTitle("Messages Deleted")
-            .setDescription(`Deleted ${amount} messages`)
-            .setTimestamp()
-            .setThumbnail("https://i.postimg.cc/SK7JwpcQ/download.png")
-            .setFooter({ text: `Requested by ${msg.author.username}` });
-
-        msg.channel.send({ embeds: [clearEmbed] })
-            .then(m => setTimeout(() => m.delete(), 5000));
+        msg.channel.send(`Deleted ${amount} messages`).then(m => setTimeout(() => m.delete(), 5000));
     }
 
-    // UserInfo Command
+    // !userinfo কমান্ড
     if (msg.content.startsWith("!userinfo")) {
         const target = msg.mentions.members.first() || msg.member;
-        const createdAt = target.user.createdAt ? target.user.createdAt.toLocaleDateString() : "N/A";
-        const joinedAt = target.joinedAt ? target.joinedAt.toLocaleDateString() : "N/A";
-
         const infoEmbed = new EmbedBuilder()
             .setColor(0x00AE86)
             .setTitle(`👤 User profile: ${target.user.username}`)
             .setThumbnail(target.user.displayAvatarURL())
             .addFields(
                 { name: '🆔 ID', value: target.user.id, inline: true },
-                { name: '🗓️ Account created', value: createdAt, inline: false },
-                { name: '📥 Joined server', value: joinedAt, inline: false },
                 { name: '🤖 Bot?', value: target.user.bot ? "Yes" : "No", inline: true }
             )
             .setTimestamp();
-
         msg.reply({ embeds: [infoEmbed] });
     }
 });
 
-// 5. Interaction Handling (Slash Commands)
-bot.on('interactionCreate', async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-    if (interaction.commandName === 'hi') {
-        await interaction.reply('Hoa');
-    }
-});
-
-// 6. Login (The very last thing)
+// ৬. লগইন
 const token = process.env.TOKEN;
 if (token) {
-    console.log("🔑 Token found, attempting to login...");
     bot.login(token).catch(err => console.error("Login failed:", err));
-} else {
-    console.log("⚠️ Error: TOKEN is missing in Environment Variables!");
 }
