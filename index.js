@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 8000;
 
 // ১. ডিকশনারি (বট রিস্টার্ট হওয়া পর্যন্ত ডাটা সেভ থাকবে)
 const wChannel = {};
+const roles = {}
 
 // Express Server Setup
 app.get('/', (req, res) => res.send('Bot is strictly online!'));
@@ -43,6 +44,18 @@ bot.once('ready', async () => {
                         required: true
                     }
                 ]
+            },
+            {
+                name: 'setrole',
+                description: 'Set a role for every member',
+                options: [
+                    {
+                        name: 'target',
+                        description: 'চ্যানেলটি সিলেক্ট করো',
+                        type: 8, // CHANNEL type
+                        required: true
+                    }
+                ]
             }
         ]);
         console.log("Slash commands loaded successfully!");
@@ -73,17 +86,29 @@ bot.on('interactionCreate', async (interaction) => {
             ephemeral: true 
         });
     }
+    if (interaction.commandName === 'setrole') {
+        const role = interaction.options.getRole('target')
+        const serverid = interaction.guild.id;
+        // ডিকশনারি আপডেট: { 'ServerID': 'ChannelID' }
+        roles[serverid] = role
+
+        await interaction.reply({ 
+            content:"Setted role for every starter player!",
+            ephemeral : true
+            
+        });
+    }
 });
 
 // ৪. অটো ওয়েলকাম সিস্টেম
 bot.on('guildMemberAdd', async (member) => {
-    const channelId = wChannel[member.guild.id]; 
-    if (!channelId) return; 
+    const roless = wChannel[member.guild.id]; 
+    if (!roless) return; 
 
-    const welcomeChannel = member.guild.channels.cache.get(channelId);
-    if (welcomeChannel) {
-        welcomeChannel.send(`স্বাগতম ${member}! আমাদের সার্ভারে আসার জন্য ধন্যবাদ। 🎉`);
+    if (roless) {
+        member.roles.add()
     }
+    
 });
 
 // ৫. মেসেজ কমান্ডস (!userinfo, !clear, Reactions)
