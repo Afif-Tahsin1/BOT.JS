@@ -1,11 +1,17 @@
 const { EmbedBuilder } = require('discord.js')
 const { Client, GatewayIntentBits } = require('discord.js');
+require('dotenv').config();
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => res.send('Bot is up!'));
+app.listen(8000);
 
 const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers
     ]
 });
 
@@ -92,6 +98,4 @@ bot.on('interactionCreate', async (interaction) => {
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
 bot.login(process.env.TOKEN);
 const express = require('express');
-const app = express();
-app.get('/', (req, res) => res.send('Bot is Alive!'));
-app.listen(8000);
+
