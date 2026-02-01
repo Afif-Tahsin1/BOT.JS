@@ -15,7 +15,7 @@ const bot = new Client({
     ]
 });
 
-bot.once('clientReady', (readyClient) => {
+bot.once('ready', (readyClient) => {
     console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
     try {
         bot.application.commands.set([
@@ -96,6 +96,13 @@ bot.on('interactionCreate', async (interaction) => {
 });
 
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
-bot.login(process.env.TOKEN);
+const token = process.env.TOKEN
+if (token){
+    console.log("Found token!")
+    bot.login(token);
+}else{
+    console.log("Can't found token!")
+}
+
 
 
