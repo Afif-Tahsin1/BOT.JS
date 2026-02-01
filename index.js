@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js')
-const { Client, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
