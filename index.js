@@ -60,7 +60,7 @@ bot.on('messageCreate', async (msg) => {
         const joinedAt = target?.joinedAt ? target.joinedAt.toLocaleDateString() : "তথ্য নেই";
 
         const infoEmbed = new EmbedBuilder()
-            .setColor(0x00AE86) 
+            .setColor(0x00AE86)
             .setTitle(`👤 User profile: ${target.user.username}`)
             .setThumbnail(target.user.displayAvatarURL())
             .addFields(
@@ -97,10 +97,16 @@ bot.once('ready', (readyClient) => {
 });
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
 const token = process.env.TOKEN
-if (token){
-    console.log("Found token!")
-    bot.login(token);
-}else{
+if (token) {
+    bot.login(process.env.TOKEN)
+        .then(() => {
+            console.log("বট সফলভাবে লগইন সিগন্যাল পাঠিয়েছে!");
+        })
+        .catch((err) => {
+            console.error("লগইন এরর ধরা পড়েছে:");
+            console.error(err); // এখানে আসল কারণ লেখা আসবে (যেমন: Invalid Token বা Disallowed Intents)
+        });
+} else {
     console.log("Can't found token!")
 }
 
