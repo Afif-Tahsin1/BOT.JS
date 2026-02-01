@@ -15,21 +15,7 @@ const bot = new Client({
     ]
 });
 
-bot.once('ready', (readyClient) => {
-    console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
-    try {
-        bot.application.commands.set([
-            {
-                name: 'hi',
-                description: 'Bot respond with Hoa'
-            }
-        ]);
-        console.log("Loading commands successfull!")
 
-    } catch (error) {
-        console.log("And error occured! Error:", error)
-    }
-});
 
 bot.on('messageCreate', async (msg) => {
     if (msg.author.bot) return
@@ -94,7 +80,21 @@ bot.on('interactionCreate', async (interaction) => {
         await interaction.reply('Hoa')
     }
 });
+bot.once('ready', (readyClient) => {
+    console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
+    try {
+        bot.application.commands.set([
+            {
+                name: 'hi',
+                description: 'Bot respond with Hoa'
+            }
+        ]);
+        console.log("Loading commands successfull!")
 
+    } catch (error) {
+        console.log("And error occured! Error:", error)
+    }
+});
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
 const token = process.env.TOKEN
 if (token){
