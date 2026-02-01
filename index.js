@@ -97,5 +97,5 @@ bot.on('interactionCreate', async (interaction) => {
 
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
 bot.login(process.env.TOKEN);
-const express = require('express');
+
 
