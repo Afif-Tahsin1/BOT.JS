@@ -6,6 +6,13 @@ const app = express();
 
 app.get('/', (req, res) => res.send('Online!'));
 app.listen(8000);
+const bot = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
 bot.once('ready', (readyClient) => {
     console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
     try {
@@ -21,13 +28,7 @@ bot.once('ready', (readyClient) => {
         console.log("And error occured! Error:", error)
     }
 });
-const bot = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
-});
+
 
 
 
