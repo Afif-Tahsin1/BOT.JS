@@ -1,17 +1,32 @@
 const { EmbedBuilder } = require('discord.js')
 const { Client, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
+const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
 const app = express();
-app.get('/', (req, res) => res.send('Bot is up!'));
-app.listen(8000);
 
+app.get('/', (req, res) => res.send('Online!'));
+app.listen(8000);
+bot.once('ready', (readyClient) => {
+    console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
+    try {
+        bot.application.commands.set([
+            {
+                name: 'hi',
+                description: 'Bot respond with Hoa'
+            }
+        ]);
+        console.log("Loading commands successfull!")
+
+    } catch (error) {
+        console.log("And error occured! Error:", error)
+    }
+});
 const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.MessageContent
     ]
 });
 
@@ -80,35 +95,18 @@ bot.on('interactionCreate', async (interaction) => {
         await interaction.reply('Hoa')
     }
 });
-bot.once('ready', (readyClient) => {
-    console.log(`Bot is online! Loggen in as ${readyClient.user.tag}`)
-    try {
-        bot.application.commands.set([
-            {
-                name: 'hi',
-                description: 'Bot respond with Hoa'
-            }
-        ]);
-        console.log("Loading commands successfull!")
 
-    } catch (error) {
-        console.log("And error occured! Error:", error)
-    }
-});
 // টোকেনটি প্রসেস এনভায়রনমেন্ট থেকে কল করো
 const token = process.env.TOKEN
-if (token) {
-    bot.login(process.env.TOKEN)
-        .then(() => {
-            console.log("বট সফলভাবে লগইন সিগন্যাল পাঠিয়েছে!");
-        })
-        .catch((err) => {
-            console.error("লগইন এরর ধরা পড়েছে:");
-            console.error(err); // এখানে আসল কারণ লেখা আসবে (যেমন: Invalid Token বা Disallowed Intents)
-        });
-} else {
-    console.log("Can't found token!")
-}
+
+
+app.get('/', (req, res) => res.send('Online!'));
+app.listen(8000);
+
+bot.login(process.env.TOKEN).catch(err => {
+    console.log("Asol Error Eta:");
+    console.error(err);
+});
 
 
 
