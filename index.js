@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, Role } = require('discord.js');
 require('dotenv').config();
 const express = require('express');
 
@@ -24,7 +24,7 @@ const bot = new Client({
 });
 
 // ২. রেডি ইভেন্ট এবং স্ল্যাশ কমান্ড কনফিগারেশন
-bot.once('ready', async () => {
+bot.once('clientReady', async () => {
     console.log(`Bot is online! Logged in as ${bot.user.tag}`);
     try {
         await bot.application.commands.set([
@@ -90,7 +90,7 @@ bot.on('interactionCreate', async (interaction) => {
         const role = interaction.options.getRole('target')
         const serverid = interaction.guild.id;
         // ডিকশনারি আপডেট: { 'ServerID': 'ChannelID' }
-        roles[serverid] = role
+        roles[interaction.guild.id] = role
 
         await interaction.reply({ 
             content:"Setted role for every starter player!",
@@ -102,10 +102,11 @@ bot.on('interactionCreate', async (interaction) => {
 
 // ৪. অটো ওয়েলকাম সিস্টেম
 bot.on('guildMemberAdd', async (member) => {
-    const roless = wChannel[member.guild.id]; 
-    if (!roless) return; 
+    const server_id = member.guild.id
+    const rolesid = Role[server_id]
+    if (!rolesid) return; 
 
-    if (roless) {
+    if (rolesid) {
         member.roles.add()
     }
     
